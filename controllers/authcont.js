@@ -5,7 +5,7 @@ const User=require('../models/Usermodel')
 const bcrypt=require('bcryptjs')
 
 const handlereg=async(req,res)=>{
-    const {name,email,password}=req.body
+    const {name,email,password,role}=req.body
     try{
         const user=await User.findOne({email})
         if (user){
@@ -13,7 +13,7 @@ const handlereg=async(req,res)=>{
 
         }
         const hashedpassword=await bcrypt.hash(password,10)
-        const newuser=new User({name,email,password:hashedpassword})
+        const newuser=new User({name,email,password:hashedpassword,role:role})
         await newuser.save()
         res.status(201).json({ msg: 'User created successfully' });
     }
@@ -41,8 +41,18 @@ const handlelogin=async(req,res)=>{
         return res.json(err.message)
     }
 }
+const getusers=async(req,res)=>{
+    try{
+        const users=await User.find({},"_id emial")
+        res.status(200).json(users)
+
+    }
+    catch(err){
+        res.json(err.message)
+    }
+}
 
 
 
 
-module.exports={handlereg,handlelogin}
+module.exports={handlereg,handlelogin,getusers}

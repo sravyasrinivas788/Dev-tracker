@@ -19,6 +19,15 @@ const auth=(req,res,next)=>{
 }
 
 const role=(reqrole)=>{
-    return ()
+    return (req,res,next)=>{
+        if(req.user.role!=reqrole){
+            return res.status(403).json({"message":"access denied for this role"})
+
+        }
+        next();
+
+    }
 
 }
+
+module.exports={auth,role}
