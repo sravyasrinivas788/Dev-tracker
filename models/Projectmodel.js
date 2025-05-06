@@ -6,16 +6,17 @@ const ProjectSchema=new mongoose.Schema({
     },
     description:String,
     createdBy:{
-        type: mongoose.Schema.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref:"User",
-        required:true
+        
 
 
     },
     members:[
         {
-            type:mongoose.Schema.ObjectId,
-            ref:'User',
+            _id:{type:mongoose.Schema.Types.ObjectId,ref:"User"},
+            email:String
+        
 
         }
     ],

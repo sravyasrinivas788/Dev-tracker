@@ -2,11 +2,15 @@ const jwt=require('jsonwebtoken')
 const auth=(req,res,next)=>{
     const token=req.header("Authorization")?.split(" ")[1]
     if(!token){
-        return res.status(401).json({"message":"token not found"})
+        return res.status(401).json({"message":"Not Authorized"})
     }
     try{
         const decoded=jwt.verify(token,process.env.JWT_SECRET)
-        req.user=decoded
+        req.user={
+            id:decoded.userId,
+            role:decoded.role
+
+        }
         next();
     }
     catch(err){
