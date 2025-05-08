@@ -5,11 +5,11 @@ const TaskSchema=new mongoose.Schema({
         required:true
     },
     description: String,
-    assignedTo:{
+    assignedTo:[{
         type:mongoose.Schema.Types.ObjectId,
         ref:'User',
 
-    },
+    }],
     status:{
         type:String,
         enum:['todo','in-progress','done'],
