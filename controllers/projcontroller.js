@@ -35,10 +35,10 @@ const addproject=async(req,res)=>{
 }
 
 const getprojects=async(req,res)=>{
-    console.log("Reached /pro/gp with user ID:", req.user?.id);
+    
     
     try{
-        console.log("Reached /pro/gp with user ID:", req.user?.id);
+        console.log("Reached", req.user?.id);
         const userid=req.user.id
         const projects=await Project.find({$or:[{createdBy:userid},{"members._id":userid}],
 
@@ -53,4 +53,51 @@ const getprojects=async(req,res)=>{
 
 }
 
-module.exports={addproject,getprojects}
+const updateprojects=async(req,res)=>{
+    try{
+        const project=await Project.findById(req.params.id)
+        if(!project){
+           return  res.status(404).json({message:"project not found"})
+        }
+        if(project.createdBy.toString()!=req.user.id){
+            return res.status(403).json({message:"not authenticated"})
+
+        }
+        const updated =await Project.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            {new :true }
+        );
+        res.json(updated)
+
+    }
+    catch(err){
+        return res.status(404).json(err.message)
+
+    }
+
+}
+
+const deleteproject=async(req,res)=>{
+    try{
+        const project=await Project.findById(req.params.id)
+        if(!project){
+           return  res.status(404).json({message:"project not found"})
+        }
+        if(project.createdBy.toString()!=req.user.id){
+            return res.status(403).json({message:"not authenticated"})
+
+        }
+        await project.deleteOne()
+        res.json({message:"project deleted"})
+        res.json(updated)
+
+    }
+    catch(err){
+        return res.status(404).json(err.message)
+
+    }
+
+}
+
+module.exports={addproject,getprojects,updateprojects,deleteproject}
