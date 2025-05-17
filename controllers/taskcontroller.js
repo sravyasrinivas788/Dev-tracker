@@ -4,6 +4,7 @@ const router=express.Router()
 const User=require('../models/Usermodel')
 const Project=require('../models/Projectmodel')
 const Task=require('../models/Taskmodel')
+const client=require('../config/redisclient')
 
 
 const addtask=async(req,res)=>{
@@ -40,8 +41,16 @@ const addtask=async(req,res)=>{
 }
 
 const gettasks=async(req,res)=>{
+    const userid=req.user.id
+    const projectId=req.params.id
+
     try{
-        const userid=req.user.id
+        const chachedtasks=await client.get(`tasks:${projectId}`)
+        if(chachedtasks){
+            return res.json(JSON.parse(chachedtasks))
+        }
+        
+
         const project=await Project.findById(req.params.id)
         if(!project){
             return res.status(404).json("project not found")
@@ -59,6 +68,7 @@ const gettasks=async(req,res)=>{
 
         
         )
+        await client.setex(`tasks:${projectId}`,120,JSON.stringify(tasks))
         res.json(tasks)
 
 
@@ -88,6 +98,8 @@ const updatetasks=async(req,res)=>{
           
             req.body,{new:true}
         )
+        await client.del(`task:${req.params.id}`);
+
         res.json(updated)
     }
     catch(err){
@@ -104,6 +116,7 @@ const deletetask=async(req,res)=> {
         return res.status(403).json({ msg: "Only creator can delete tasks" });
   
       await task.deleteOne();
+      await client.del(`task:${req.params.id}`)
       res.json({ msg: "Task deleted" });
     } catch (err) {
       res.status(500).json({ msg: err.message });

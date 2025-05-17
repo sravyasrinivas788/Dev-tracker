@@ -1,10 +1,19 @@
 const jwt=require('jsonwebtoken')
-const auth=(req,res,next)=>{
-    const token=req.header("Authorization")?.split(" ")[1]
-    if(!token){
-        return res.status(401).json({"message":"Not Authorized"})
-    }
+const client=require('../config/redisclient')
+const auth=async(req,res,next)=>{
+    const authheader=req.headers.authorization
+    if (!authheader || !authheader.startsWith("Bearer ")) {
+        return res.status(401).json({ message: "No token provided" });
+      }
+    const token=authheader.split(" ")[1]
+
+    
     try{
+        const isvalid=await client.get(`jwt:${token}`)
+        if(!isvalid){
+            return res.status(401).json({message:"invalidated"})
+        }
+
         const decoded=jwt.verify(token,process.env.JWT_SECRET)
         req.user={
             id:decoded.userId,

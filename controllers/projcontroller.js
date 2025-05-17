@@ -3,6 +3,7 @@ const express=require('express')
 const router=express.Router()
 const User=require('../models/Usermodel')
 const Project=require('../models/Projectmodel')
+const client=require('../config/redisclient')
 const bcrypt=require('bcryptjs')
 
 
@@ -36,13 +37,19 @@ const addproject=async(req,res)=>{
 
 const getprojects=async(req,res)=>{
     
+    const userid=req.user.id
+    
     
     try{
-        console.log("Reached", req.user?.id);
-        const userid=req.user.id
+        const cachedprojects=await client.get(`user:${userid}:projects`)
+        if(cachedprojects){
+            return res.json(JSON.parse(cachedprojects));
+        }
+        
         const projects=await Project.find({$or:[{createdBy:userid},{"members._id":userid}],
 
         }).populate('createdBy','email')
+        await client.setex(`user:${userid}:projects`,120,JSON.stringify(projects))
         
         res.status(200).json(projects)
 
@@ -65,9 +72,14 @@ const updateprojects=async(req,res)=>{
         }
         const updated =await Project.findByIdAndUpdate(
             req.params.id,
-            req.body,
-            {new :true }
-        );
+            { $addToSet: { members: { $each: req.body.members } } },
+            { new: true }
+          );
+          
+          
+        
+        await client.del(`user:${req.user.id}:projects`);
+
         res.json(updated)
 
     }
@@ -89,6 +101,8 @@ const deleteproject=async(req,res)=>{
 
         }
         await project.deleteOne()
+        await client.del(`user:${userid}:projects`);
+
         res.json({message:"project deleted"})
         res.json(updated)
 

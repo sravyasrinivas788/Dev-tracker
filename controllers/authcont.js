@@ -3,6 +3,8 @@ const express=require('express')
 const router=express.Router()
 const User=require('../models/Usermodel')
 const bcrypt=require('bcryptjs')
+const {gettoken}=require('../utils/generatetoken')
+const client=require('../config/redisclient')
 
 const handlereg=async(req,res)=>{
     const {name,email,password,role}=req.body
@@ -33,7 +35,7 @@ const handlelogin=async(req,res)=>{
         if(!passwordmatch){
             return res.status(400).json({"message":"wrong passowrd"})
         }
-        const token= jwt.sign({userId:user._id,role:user.role},process.env.JWT_SECRET);
+        const token=await gettoken(user._id,user.role)
         res.status(200).json({"message":"successfull login",token})
         
     }
@@ -52,7 +54,18 @@ const getusers=async(req,res)=>{
     }
 }
 
+const logout=async(req,res)=>{
+   
+const token = req.headers.authorization?.split(" ")[1];
+  if (!token) return res.status(401).json({ message: "No token provided" });
+  await client.del(`jwt:${token}`)
+  return res.status(200).json({message:"logged out "})
+
+
+    
+}
 
 
 
-module.exports={handlereg,handlelogin,getusers}
+
+module.exports={handlereg,handlelogin,getusers,logout}
