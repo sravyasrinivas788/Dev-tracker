@@ -64,8 +64,24 @@ const token = req.headers.authorization?.split(" ")[1];
 
     
 }
+const uploadimage=async(req,res)=>{
+    try{
+        const userId=req.user.id
+        const profile=req.file.path
+        const updated= await User.findByIdAndUpdate(
+            userId,
+            {profile:profile},
+            {new:true}
+
+        );
+        res.status(200).json({message:"profile updated succesfully",profile:updated.profile})
+
+    }
+    catch(err){
+        res.json(err)
+    }
+}
 
 
 
-
-module.exports={handlereg,handlelogin,getusers,logout}
+module.exports={handlereg,handlelogin,getusers,logout,uploadimage}
