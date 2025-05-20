@@ -18,6 +18,7 @@ const Userschema=new mongoose.Schema({
         default:'user'
        
     },
-    profile:String
+    profile:String,
+    profileid:String
 })
 module.exports=mongoose.model('User',Userschema)

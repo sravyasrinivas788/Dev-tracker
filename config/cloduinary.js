@@ -11,6 +11,7 @@ const storage=new CloudinaryStorage({
     params:{
         folder:"devtrack_user",
         allowed_formats:["jpg","png"],
+        type:"authenticated",
         transformation:[{ width: 500, height: 500, crop: "limit" }]
 
     }
