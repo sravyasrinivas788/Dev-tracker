@@ -9,16 +9,19 @@ const { cloudinary } = require('../config/cloduinary')
 
 const handlereg=async(req,res)=>{
     const {name,email,password,role}=req.body
+    if(!name || !email || !password){
+        return res.status(400).json({ message: "Missing required fields" });
+    }
     try{
         const user=await User.findOne({email})
         if (user){
-            return res.status(400).json({"message":"user already exists"})
+            return res.status(409).json({message:"user already exists"})
 
         }
         const hashedpassword=await bcrypt.hash(password,10)
         const newuser=new User({name,email,password:hashedpassword,role:role})
         await newuser.save()
-        res.status(201).json({ msg: 'User created successfully' });
+        res.status(201).json({ message: 'User created successfully' });
     }
     catch(err){
         return res.json(err.message)
@@ -26,18 +29,21 @@ const handlereg=async(req,res)=>{
 }
 const handlelogin=async(req,res)=>{
     const {email,password}=req.body
+    if(!email || !password){
+        return res.status(400).json({message:"enter details"})
+    }
     try{
         const user=await User.findOne({email})
         if (!user){
-            return res.status(400).json({"message":"user not found "})
+            return res.status(404).json({message:"user not found "})
 
         }
         const passwordmatch= await bcrypt.compare(password,user.password)
         if(!passwordmatch){
-            return res.status(400).json({"message":"wrong passowrd"})
+            return res.status(401).json({message:"wrong password"})
         }
         const token=await gettoken(user._id,user.role)
-        res.status(200).json({"message":"successfull login",token})
+        res.status(200).json({message:"successfull login","token":token})
         
     }
     catch(err){
