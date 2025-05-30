@@ -8,7 +8,7 @@ const bcrypt=require('bcryptjs')
 
 
 const addproject=async(req,res)=>{
-    const{title,description,members}=req.body;
+    const{title,description,members}=req.body;   
     const users=await User.find({email:{$in:members}})
     const memobj=users.map(user=>({
         _id:user.id,

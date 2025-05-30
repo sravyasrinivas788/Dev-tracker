@@ -3,6 +3,7 @@ require('dotenv').config();
 const connectDB = require('./config/db');
 const authroute = require('./routes/authroute');
 const proroute = require('./routes/proroute');
+const helproute=require('./routes/helproute')
 
 const app = express();
 connectDB();
@@ -14,5 +15,6 @@ app.get('/ping', (req, res) => {
 
 app.use('/auth', authroute);
 app.use('/pro', proroute);
+app.use('/help',helproute)
 
 module.exports = app; 
