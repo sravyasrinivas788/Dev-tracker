@@ -19,4 +19,39 @@ const getarticlebyslug=async(req,res)=>{
 
 }
 
-module.exports={getallarticles,getarticlebyslug}
+const getdashboard=async(req,res)=>{
+    const query=`*[_type=="dashboardInfo"][0]{
+    heading,
+    description,
+    statistics,
+    "bannerImageUrl": bannerImage.asset->url
+
+    }`
+    try{
+        const data=await sclient.fetch(query)
+        res.json(data)
+    }
+    catch(err){
+        res.status(500).json({error:'failed to get data'})
+    }
+}
+
+const getaboutpage=async(req,res)=>{
+    const query=`*[_type=="aboutPage"][0]{
+    title,
+    content,
+    "imageUrl":image.asset->url
+
+    }`
+    try{
+        const data=await sclient.fetch(query)
+        res.json(data)
+
+    }
+    catch(err){
+        res.status(500).json({error:'failed to get data'})
+
+    }
+}
+
+module.exports={getallarticles,getarticlebyslug,getdashboard,getaboutpage}
