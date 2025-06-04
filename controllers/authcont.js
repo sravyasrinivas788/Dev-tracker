@@ -6,6 +6,7 @@ const bcrypt=require('bcryptjs')
 const {gettoken}=require('../utils/generatetoken')
 const client=require('../config/redisclient')
 const { cloudinary } = require('../config/cloduinary')
+const axios=require('axios')
 
 const handlereg=async(req,res)=>{
     const {name,email,password,role}=req.body
@@ -78,19 +79,36 @@ const getusers = async (req, res) => {
         const signedUsers = [];
 
         for (const user of users) {
+             if (!user.profileid) {
+                signedUsers.push({
+                    _id: user._id,
+                    email: user.email,
+                    profile: null, 
+                });
+                continue;
+            }
             const cacheKey = `profile:${user.profileid}`;
             let signedUrl = await client.get(cacheKey);
+            console.log(user)
 
             if (!signedUrl) {
-                signedUrl = cloudinary.url(user.profileid, {
-                    type: "authenticated",
-                    secure: true,
-                    sign_url: true,
-                    transformation: [{ width: 500, height: 500, crop: "limit" }],
-                    expires_at: Math.floor(Date.now() / 1000) + 60 * 5, 
-                });
+               
+                console.log(user.profileid)
+                console.log("generating signed uri")
+                const response = await axios.post(
+                    
+                    "https://5h8if7z3g1.execute-api.us-east-1.amazonaws.com/deployed-1/generateuri",
+                    { publicId: user.profileid },
+                    {
+                        headers: {
+                            "Content-Type": "application/json", 
+                        },
+                    }
+                    
+                );
 
-                
+                signedUrl = response.data.signedUrl;
+                console.log(signedUrl)
                 await client.setex(cacheKey, 300, signedUrl);
             }
 
@@ -106,6 +124,7 @@ const getusers = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
 
 
 const logout=async(req,res)=>{

@@ -55,7 +55,7 @@ const getprojects=async(req,res)=>{
 
     }
     catch(err){
-        res.json(err.message)
+        res.json({message:"project not found"})
     }
 
 }
@@ -84,7 +84,7 @@ const updateprojects=async(req,res)=>{
 
     }
     catch(err){
-        return res.status(404).json(err.message)
+        return res.status(404).json({message:"project not found"})
 
     }
 
@@ -101,14 +101,14 @@ const deleteproject=async(req,res)=>{
 
         }
         await project.deleteOne()
-        await client.del(`user:${userid}:projects`);
+        await client.del(`user:${req.user.userid}:projects`);
 
         res.json({message:"project deleted"})
         res.json(updated)
 
     }
     catch(err){
-        return res.status(404).json(err.message)
+        return res.status(404).json({message:"project not found"})
 
     }
 
