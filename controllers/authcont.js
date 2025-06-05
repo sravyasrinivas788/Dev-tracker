@@ -19,9 +19,23 @@ const handlereg=async(req,res)=>{
             return res.status(409).json({message:"user already exists"})
 
         }
+        
         const hashedpassword=await bcrypt.hash(password,10)
         const newuser=new User({name,email,password:hashedpassword,role:role})
         await newuser.save()
+       try {
+            await axios.post("https://cjev9tyvi7.execute-api.us-east-1.amazonaws.com/deployed-2/emailtrigger-lambda", {
+                email: email
+            }, {
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
+            console.log("Registration email sent to:", email);
+        } catch (emailErr) {
+            console.error("Email send error:", emailErr.message);
+            
+        }
         res.status(201).json({ message: 'User created successfully' });
     }
     catch(err){
