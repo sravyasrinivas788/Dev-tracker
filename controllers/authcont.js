@@ -111,7 +111,7 @@ const getusers = async (req, res) => {
                 console.log("generating signed uri")
                 const response = await axios.post(
                     
-                    "https://5h8if7z3g1.execute-api.us-east-1.amazonaws.com/deployed-1/generateuri",
+                    "https://ss42tnf9f5.execute-api.us-east-1.amazonaws.com/Prod/generate-signed",
                     { publicId: user.profileid },
                     {
                         headers: {
