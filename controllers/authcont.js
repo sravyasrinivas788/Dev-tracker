@@ -24,7 +24,7 @@ const handlereg=async(req,res)=>{
         const newuser=new User({name,email,password:hashedpassword,role:role})
         await newuser.save()
        try {
-            await axios.post("https://cjev9tyvi7.execute-api.us-east-1.amazonaws.com/deployed-2/emailtrigger-lambda", {
+            await axios.post(" https://ocwhtgozuc.execute-api.us-east-1.amazonaws.com/Prod/email-trigger", {
                 email: email
             }, {
                 headers: {
